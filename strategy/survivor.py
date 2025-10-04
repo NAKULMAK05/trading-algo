@@ -77,6 +77,12 @@ class SurvivorStrategy:
     """
     
     def __init__(self, broker, config, order_manager):
+
+        self.nifty_pe_last_value = 24900
+        self.nifty_ce_last_value = 24900
+
+        self.pe_reset_gap_flag = 0
+        self.ce_reset_gap_flag = 0
         # Assign config values as instance variables with 'strat_var_' prefix
         for k, v in config.items():
             setattr(self, f'strat_var_{k}', v)
@@ -930,7 +936,7 @@ PARAMETER GROUPS:
         """
         # Define default values that indicate user hasn't updated config
         default_values = {
-            'symbol_initials': 'NIFTY25807',  
+            'symbol_initials': 'NIFTY25O07',  
             'pe_gap': 20,
             'ce_gap': 20,
             'pe_quantity': 75,

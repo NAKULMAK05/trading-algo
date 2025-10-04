@@ -1,4 +1,50 @@
-.env
-.venc
+# Python virtual environment
+venv/
+ENV/
+env/
+.venv/
+
+# Python bytecode
 __pycache__/
+*.py[cod]
+*$py.class
+
+# IDE and editor settings
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Environment and secrets
+.env
+*.env
+
+# Logs and cache
 *.log
+*.sqlite3
+*.db
+.cache/
+*.bak
+
+# Jupyter notebooks
+.ipynb_checkpoints
+
+# Test and coverage
+htmlcov/
+.coverage
+.tox/
+.pytest_cache/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+*.whl
+
+# Node (if frontend is added)
+node_modules/

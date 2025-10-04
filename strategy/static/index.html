@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Survivor Strategy Controller</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f9f9f9;
+      padding: 40px;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #startBtn {
+      background-color: #4CAF50;
+      color: white;
+    }
+    #stopBtn {
+      background-color: #f44336;
+      color: white;
+    }
+    #status {
+      margin-top: 20px;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+    #logs {
+      background: #000;
+      color: #0f0;
+      padding: 10px;
+      margin-top: 20px;
+      height: 300px;
+      overflow-y: auto;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>🧠 Survivor Strategy Control Panel</h2>
+
+  <label for="request_token">Request Token:</label>
+  <input type="text" id="request_token" placeholder="Enter broker request token" title="Broker request token">
+
+  <label for="symbol_initials">Symbol Initials:</label>
+  <input type="text" id="symbol_initials" value="NIFTY25OCT" placeholder="e.g., NIFTY25OCT" title="Symbol initials">
+
+  <label for="pe_gap">PE Gap:</label>
+  <input type="number" id="pe_gap" value="25" placeholder="PE gap in points" title="PE gap">
+
+  <label for="ce_gap">CE Gap:</label>
+  <input type="number" id="ce_gap" value="25" placeholder="CE gap in points" title="CE gap">
+
+  <label for="min_price_to_sell">Min Price to Sell:</label>
+  <input type="number" id="min_price_to_sell" value="15" placeholder="Minimum price to sell" title="Min price to sell">
+
+  <button id="startBtn">▶ Start Strategy</button>
+  <button id="stopBtn">⏹ Stop Strategy</button>
+
+  <div id="status">Status will appear here...</div>
+  <h3>Logs:</h3>
+  <div id="logs">Waiting for logs...</div>
+</div>
+
+<script>
+async function startStrategy() {
+  const data = {
+    request_token: document.getElementById('request_token').value,
+    symbol_initials: document.getElementById('symbol_initials').value,
+    pe_gap: parseInt(document.getElementById('pe_gap').value),
+    ce_gap: parseInt(document.getElementById('ce_gap').value),
+    min_price_to_sell: parseFloat(document.getElementById('min_price_to_sell').value)
+  };
+
+  try {
+    const res = await fetch('/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    document.getElementById('status').innerText = JSON.stringify(result, null, 2);
+  } catch (err) {
+    document.getElementById('status').innerText = `Error starting strategy: ${err.message}`;
+  }
+}
+
+async function stopStrategy() {
+  try {
+    const res = await fetch('/stop', { method: 'POST' });
+    const result = await res.json();
+    document.getElementById('status').innerText = JSON.stringify(result, null, 2);
+  } catch (err) {
+    document.getElementById('status').innerText = `Error stopping strategy: ${err.message}`;
+  }
+}
+
+async function fetchLogs() {
+  try {
+    const res = await fetch('/logs');
+    const result = await res.json();
+    document.getElementById('logs').innerText = result.logs || 'No logs available.';
+  } catch (err) {
+    document.getElementById('logs').innerText = `Error fetching logs: ${err.message}`;
+  } finally {
+    setTimeout(fetchLogs, 3000);
+  }
+}
+
+document.getElementById('startBtn').onclick = startStrategy;
+document.getElementById('stopBtn').onclick = stopStrategy;
+fetchLogs();
+</script>
+
+</body>
+</html>
