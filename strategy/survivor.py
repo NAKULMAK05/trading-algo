@@ -960,6 +960,8 @@ PARAMETER GROUPS:
                              'with premium below this value will be skipped. Prevents '
                              'trading illiquid or very cheap options.')
         
+        parser.add_argument("--max_price_to_sell", type=float)
+        
         parser.add_argument('--sell-multiplier-threshold', type=float,
                         help='Maximum allowed position multiplier. Prevents excessive '
                              'position sizes during large market moves. E.g., if threshold '
