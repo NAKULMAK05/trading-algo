@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PTY Terminal</title>
+
+  <!-- xterm.js CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
+  <style>
+    body { margin:0; height:100vh; display:flex; flex-direction:column; background:#0b0f14; color:#e6eef3; font-family:monospace; }
+    header { padding:8px; display:flex; gap:8px; align-items:center; background:#071018; }
+    #controls { display:flex; gap:8px; align-items:center; }
+    #term { flex:1; padding:6px; }
+    input[type=text]{ padding:6px; border-radius:6px; border:1px solid #333; background:#031016; color:#e6eef3 }
+    button{ padding:6px 10px; border-radius:6px; background:#1f8bff; border:0; color:white; cursor:pointer }
+    .small{ font-size:13px; color:#9fb7c0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div id="controls">
+      <input id="cmd" type="text" placeholder='Command (e.g. python -u strategy/survivor.py)' size="50" />
+      <input id="cwd" type="text" placeholder="cwd (optional)" size="20" />
+      <input id="token" type="text" placeholder="X-ADMIN-TOKEN (if configured)" size="20" />
+      <button id="startBtn">Start</button>
+      <button id="stopBtn">Stop</button>
+      <span id="status" class="small">status: disconnected</span>
+    </div>
+  </header>
+
+  <div id="term"></div>
+
+  <!-- libs -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
+
+  <script>
+    const socket = io();
+    const termContainer = document.getElementById("term");
+    const startBtn = document.getElementById("startBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const cmdInput = document.getElementById("cmd");
+    const cwdInput = document.getElementById("cwd");
+    const tokenInput = document.getElementById("token");
+    const statusEl = document.getElementById("status");
+
+    // create xterm
+    const term = new window.Terminal({
+      cols: 120,
+      rows: 30,
+      convertEol: true,
+      cursorBlink: true
+    });
+    term.open(termContainer);
+    term.focus();
+
+    // send keystrokes to server
+    term.onData(data => {
+      socket.emit("client-input", { input: data });
+    });
+
+    // receive output chunks
+    socket.on("output", function(chunk) {
+      term.write(chunk);
+    });
+
+    socket.on("welcome", function(d){ statusEl.textContent = "status: connected"; });
+    socket.on("process-exit", function(d){ statusEl.textContent = "status: process exited"; });
+
+    socket.on("error", function(d){ console.error("socket error", d); });
+
+    // start process
+    startBtn.addEventListener("click", async () => {
+      const cmd = cmdInput.value.trim();
+      if(!cmd){ alert("enter command"); return; }
+      const cwd = cwdInput.value.trim() || undefined;
+      const token = tokenInput.value.trim() || undefined;
+      try {
+        const res = await fetch("/run", {
+          method: "POST",
+          headers: token ? { "Content-Type":"application/json", "X-ADMIN-TOKEN": token } : { "Content-Type":"application/json" },
+          body: JSON.stringify({ cmd: cmd, cwd: cwd })
+        });
+        const j = await res.json();
+        if(res.ok) {
+          statusEl.textContent = "status: running pid " + j.pid;
+        } else {
+          statusEl.textContent = "start-error: " + (j.error || JSON.stringify(j));
+          alert("Start error: " + (j.error || JSON.stringify(j)));
+        }
+      } catch (e) {
+        alert("Network error: " + e.message);
+      }
+    });
+
+    stopBtn.addEventListener("click", async () => {
+      const token = tokenInput.value.trim() || undefined;
+      try {
+        const res = await fetch("/stop", { method: "POST", headers: token ? { "X-ADMIN-TOKEN": token } : {} });
+        const j = await res.json();
+        if(res.ok) {
+          statusEl.textContent = "status: stopped";
+        } else {
+          statusEl.textContent = "stop-error: " + (j.error || JSON.stringify(j));
+        }
+      } catch (e) {
+        alert("Network error: " + e.message);
+      }
+    });
+
+    // resize handling: forward to server so child process gets correct window size
+    function sendResize() {
+      const cols = term.cols;
+      const rows = term.rows;
+      socket.emit("resize", { cols: cols, rows: rows });
+    }
+    window.addEventListener("resize", () => {
+      term.fit && term.fit();
+      sendResize();
+    });
+
+    // attempt initial resize
+    setTimeout(sendResize, 500);
+  </script>
+</body>
+</html>

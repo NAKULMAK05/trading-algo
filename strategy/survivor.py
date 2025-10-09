@@ -1,9 +1,48 @@
 import os
 import sys
+# --- Begin I/O + logging fixes (paste at very top of survivor.py) ---
+# Put this at the very top of survivor.py (before any imports)
+import sys, os, functools, builtins, logging
+
+# Force UTF-8 and unbuffered behavior
+try:
+    sys.stdout.reconfigure(encoding='utf-8', line_buffering=True)
+    sys.stderr.reconfigure(encoding='utf-8', line_buffering=True)
+except Exception:
+    os.environ["PYTHONUTF8"] = "1"
+os.environ["PYTHONUNBUFFERED"] = "1"
+
+import sys, builtins, functools
+
+# Force every print to flush immediately
+print = functools.partial(print, flush=True)
+
+# Make input() show its prompt immediately (important for frontend terminals)
+_original_input = builtins.input
+def flushed_input(prompt=""):
+    sys.stdout.write(prompt)
+    sys.stdout.flush()
+    return _original_input()
+builtins.input = flushed_input
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import time
+from datetime import datetime
 
 import yaml
 from logger import logger
+
+# === Ensure stdout/stderr are UTF-8 encoded (helps on Windows consoles/pipes) ===
+import sys
+try:
+    # Python 3.7+: reconfigure stdout/stderr to UTF-8
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8")
+except Exception:
+    # If reconfigure isn't available or fails, set PYTHONUTF8 fallback
+    os.environ.setdefault("PYTHONUTF8", "1")
 
 class SurvivorStrategy:
     """
@@ -78,8 +117,37 @@ class SurvivorStrategy:
     
     def __init__(self, broker, config, order_manager):
 
+
+                # -----------------------
+        # STOP-LOSS defaults (populate if config missing)
+        # -----------------------
+        if not hasattr(self, "strat_var_stoploss_enabled"):
+            self.strat_var_stoploss_enabled = True
+        if not hasattr(self, "strat_var_stoploss_multiplier"):
+            self.strat_var_stoploss_multiplier = 2.0
+        if not hasattr(self, "strat_var_stoploss_preferred_order_type"):
+            self.strat_var_stoploss_preferred_order_type = "SL-M"
+        if not hasattr(self, "strat_var_stoploss_fallback_order_type"):
+            self.strat_var_stoploss_fallback_order_type = "SL"
+        if not hasattr(self, "strat_var_stoploss_limit_buffer"):
+            self.strat_var_stoploss_limit_buffer = 1.02
+        if not hasattr(self, "strat_var_stoploss_price_precision"):
+            self.strat_var_stoploss_price_precision = 2
+        if not hasattr(self, "strat_var_stoploss_use_quote_for_exec_price"):
+            self.strat_var_stoploss_use_quote_for_exec_price = True
+        if not hasattr(self, "strat_var_stoploss_tag"):
+            self.strat_var_stoploss_tag = "SurvivorSL"
+        if not hasattr(self, "strat_var_stoploss_auto_place"):
+            self.strat_var_stoploss_auto_place = True
+        if not hasattr(self, "strat_var_stoploss_retry_attempts"):
+            self.strat_var_stoploss_retry_attempts = 2
+        if not hasattr(self, "strat_var_stoploss_retry_delay_secs"):
+            self.strat_var_stoploss_retry_delay_secs = 1.0
+
         self.nifty_pe_last_value = 24900
         self.nifty_ce_last_value = 24900
+
+        self.strat_var_nifty_lot_size = 75
 
         self.pe_reset_gap_flag = 0
         self.ce_reset_gap_flag = 0
@@ -268,6 +336,10 @@ class SurvivorStrategy:
                     # Try closer strike if premium is too low
                     temp_gap -= self.strat_var_nifty_lot_size
                     continue
+                #  Check if premium meets maximum threshold
+                if hasattr(self, 'strat_var_max_price_to_sell') and quote['last_price'] > self.strat_var_max_price_to_sell:
+                    logger.info(f"Last price {quote['last_price']} exceeds max price {self.strat_var_max_price_to_sell}, skipping trade")
+                    return
                     
                 # Execute the trade
                 logger.info(f"Execute PE sell @ {instrument['tradingsymbol']} × {total_quantity}, Market Price")
@@ -343,6 +415,11 @@ class SurvivorStrategy:
                     # Try closer strike if premium is too low
                     temp_gap -= self.strat_var_nifty_lot_size
                     continue
+                #  Check if premium meets maximum threshold
+                if hasattr(self, 'strat_var_max_price_to_sell') and quote['last_price'] > self.strat_var_max_price_to_sell:
+                    logger.info(f"Last price {quote['last_price']} exceeds max price {self.strat_var_max_price_to_sell}, skipping trade")
+                    return
+
                     
                 # Execute the trade
                 logger.info(f"Execute CE sell @ {instrument['tradingsymbol']} × {total_quantity}, Market Price")
@@ -492,64 +569,157 @@ class SurvivorStrategy:
             if price < self.strat_var_min_price_to_sell:
                 # Try closer strike if premium too low
                 temp_gap -= self.strat_var_nifty_lot_size
-            else:
-                return instrument
+                continue
+
+            if hasattr(self, 'strat_var_max_price_to_sell') and price > self.strat_var_max_price_to_sell:
+                 # Price exceeds max threshold, skip this instrument
+                logger.info(f"Price {price} exceeds max price {self.strat_var_max_price_to_sell}, skipping instrument")
+                return None
+            
+            return instrument
+
 
     def _place_order(self, symbol, quantity):
         """
-        Execute order placement through the broker
-        
-        Args:
-            symbol (str): Trading symbol for the option
-            quantity (int): Number of lots/shares to trade
-            
-        Process:
-        1. Place market order through broker interface
-        2. Log order details
-        3. Track order in order management system
-        4. Handle order failures gracefully
-        
-        Order Parameters:
-        - Transaction Type: From configuration (typically SELL)
-        - Order Type: From configuration (typically MARKET)
-        - Exchange: From configuration (typically NFO)
-        - Product: From configuration (NRML/MIS)
-        - Variety: Always REGULAR
-        - Tag: "Survivor" for identification
+        Place a primary order (market SELL/BUY depending on config) and optionally
+        place a protective stop-loss order according to configuration.
+
+        Behavior:
+        - If stoploss_auto_place and stoploss_enabled are True, attempt protective SL.
+        - Preferred attempt is strat_var_stoploss_preferred_order_type (e.g., "SL-M").
+        - On failure, fallback to strat_var_stoploss_fallback_order_type (e.g., "SL")
+            with limit buffer = strat_var_stoploss_limit_buffer.
         """
-        # Place order through broker interface
+        # 1) Place the main order (market by default)
         order_id = self.broker.place_order(
-            symbol, 
-            quantity, 
-            price=None,  # Market order
-            transaction_type=self.strat_var_trans_type, 
-            order_type=self.strat_var_order_type, 
-            variety="REGULAR", 
-            exchange=self.strat_var_exchange, 
-            product=self.strat_var_product_type, 
+            symbol=symbol,
+            quantity=quantity,
+            price=None,  # Market order for primary
+            transaction_type=self.strat_var_trans_type,
+            order_type=self.strat_var_order_type,
+            variety="REGULAR",
+            exchange=self.strat_var_exchange,
+            product=self.strat_var_product_type,
             tag="Survivor"
         )
-        
-        # Handle order placement failure
+
         if order_id == -1:
-            logger.error(f"Order placement failed for {symbol} × {quantity}, Market Price")
+            logger.error("Order placement failed for %s x %s", symbol, quantity)
             return
-            
-        logger.info(f"Placing order for {symbol} × {quantity}, Market Price")
-        
-        # Track the order using OrderTracker
-        from datetime import datetime
-        order_details = {
+
+        # 2) Determine executed price (approximate via quote if configured)
+        executed_price = None
+        if getattr(self, "strat_var_stoploss_use_quote_for_exec_price", True):
+            try:
+                qsymbol = f"{self.strat_var_exchange}:{symbol}"
+                quote = self.broker.get_quote(qsymbol)
+                executed_price = quote[qsymbol]["last_price"]
+            except Exception as e:
+                logger.warning("Failed to fetch executed price for %s: %s", symbol, e)
+                executed_price = None
+
+        logger.info("Main order placed: %s | Qty=%s | ID=%s | Exec=%s", symbol, quantity, order_id, executed_price)
+
+        # Add to order manager
+        self.order_manager.add_order({
             "order_id": order_id,
             "symbol": symbol,
             "transaction_type": self.strat_var_trans_type,
             "quantity": quantity,
-            "price": None,  # Market order
+            "price": executed_price,
             "timestamp": datetime.now().isoformat(),
-        }
-        
-        # Add to order tracking system
-        self.order_manager.add_order(order_details)
+        })
+
+        # 3) If stop-loss is disabled globally or auto placement off, skip SL placement
+        if not getattr(self, "strat_var_stoploss_auto_place", True) or not getattr(self, "strat_var_stoploss_enabled", True):
+            logger.info("Stop-loss auto placement disabled; skipping SL for %s", symbol)
+            return
+
+        # 4) If we have no executed price and we cannot compute SL, skip SL placement
+        if executed_price is None:
+            logger.warning("No executed price available for %s; skipping stop-loss placement", symbol)
+            return
+
+        # 5) Compute trigger and precision
+        multiplier = getattr(self, "strat_var_stoploss_multiplier", 2.0)
+        precision = int(getattr(self, "strat_var_stoploss_price_precision", 2))
+        trigger_price = round(executed_price * multiplier, precision)
+
+        preferred = getattr(self, "strat_var_stoploss_preferred_order_type", "SL-M")
+        fallback = getattr(self, "strat_var_stoploss_fallback_order_type", "SL")
+        buffer_mult = float(getattr(self, "strat_var_stoploss_limit_buffer", 1.02))
+        retry_attempts = int(getattr(self, "strat_var_stoploss_retry_attempts", 2))
+        retry_delay = float(getattr(self, "strat_var_stoploss_retry_delay_secs", 1.0))
+        sl_tag = getattr(self, "strat_var_stoploss_tag", "SurvivorSL")
+
+        logger.info("Attempting stop-loss for %s | trigger=%s | preferred=%s", symbol, trigger_price, preferred)
+
+        # 6) Try preferred order type first
+        try_order_types = [preferred]
+        if fallback and fallback != preferred:
+            try_order_types.append(fallback)
+
+        placed = False
+        last_exc = None
+
+        for order_type_choice in try_order_types:
+            attempts_left = retry_attempts
+            while attempts_left >= 0 and not placed:
+                try:
+                    if order_type_choice == "SL-M":
+                        # SL-M uses trigger_price; price=None
+                        sl_args = dict(
+                            symbol=symbol,
+                            quantity=quantity,
+                            price=None,
+                            transaction_type="BUY",
+                            order_type="SL-M",
+                            variety="REGULAR",
+                            exchange=self.strat_var_exchange,
+                            product=self.strat_var_product_type,
+                            trigger_price=trigger_price,
+                            tag=sl_tag
+                        )
+                    else:
+                        # SL (stop-loss limit) requires trigger_price and a limit price.
+                        limit_price = round(trigger_price * buffer_mult, precision)
+                        sl_args = dict(
+                            symbol=symbol,
+                            quantity=quantity,
+                            price=limit_price,
+                            transaction_type="BUY",
+                            order_type="SL",
+                            variety="REGULAR",
+                            exchange=self.strat_var_exchange,
+                            product=self.strat_var_product_type,
+                            trigger_price=trigger_price,
+                            tag=sl_tag
+                        )
+
+                    sl_order_id = self.broker.place_order(**sl_args)
+                    if sl_order_id != -1:
+                        logger.info("Stop-loss placed: %s | ID=%s | type=%s | trigger=%s", symbol, sl_order_id, order_type_choice, trigger_price)
+                        placed = True
+                        break
+                    else:
+                        logger.warning("Stop-loss attempt returned failure code for %s using %s", symbol, order_type_choice)
+                        last_exc = "returned -1"
+                except Exception as e:
+                    last_exc = e
+                    logger.warning("Stop-loss attempt failed for %s using %s: %s", symbol, order_type_choice, e)
+
+                attempts_left -= 1
+                if not placed and attempts_left >= 0:
+                    time.sleep(retry_delay)
+
+            if placed:
+                break
+
+        if not placed:
+            logger.error("All attempts to place stop-loss failed for %s. Last error: %s", symbol, last_exc)
+
+
+
         
 
     def _log_stable_market(self, current_val):
@@ -906,6 +1076,7 @@ PARAMETER GROUPS:
         'ce_start_point': 'ce_start_point',
         'trans_type': 'trans_type',
         'min_price_to_sell': 'min_price_to_sell',
+        'max_price_to_sell':'max_price_to_sell',
         'sell_multiplier_threshold': 'sell_multiplier_threshold'
     }
 
@@ -931,27 +1102,28 @@ PARAMETER GROUPS:
     # Validate that user has updated default configuration values
     def validate_configuration(config):
         """
-        Validate that user has updated at least some default configuration values
-        Returns True if config is valid, False otherwise
+        Validate that user has updated configuration values.
+        If environment variable ALWAYS_CONFIRM == "1", force a confirmation prompt
+        even when all values are changed (useful for dev / frontend interactive runs).
+        Returns True to proceed, False to abort.
         """
-        # Define default values that indicate user hasn't updated config
         default_values = {
-            'symbol_initials': 'NIFTY25O07',  
+            'symbol_initials': 'NIFTY25O07',
             'pe_gap': 20,
             'ce_gap': 20,
-            'pe_quantity': 75,
-            'ce_quantity': 75,
+            'pe_quantity': 50,
+            'ce_quantity': 50,
             'pe_symbol_gap': 200,
             'ce_symbol_gap': 200,
-            'min_price_to_sell': 15,
-            'pe_reset_gap': 30,
-            'ce_reset_gap': 30,
-            'pe_start_point': 0,
-            'ce_start_point': 0,
-            'sell_multiplier_threshold': 5
+            'min_price_to_sell': 25,
+            'max_price_to_sell':50,
+            'pe_reset_gap': 50,
+            'ce_reset_gap': 50,
+            'pe_start_point': 1,
+            'ce_start_point': 1,
+            'sell_multiplier_threshold': 15
         }
-        
-        # Check which values are still at defaults
+
         unchanged_values = []
         changed_values = []
         for key, default_value in default_values.items():
@@ -959,8 +1131,8 @@ PARAMETER GROUPS:
                 unchanged_values.append(key)
             else:
                 changed_values.append(key)
-        
-        # If ALL values are still at defaults, show error and exit
+
+        # If ALL values are defaults -> fail and ask update
         if len(changed_values) == 0:
             print("\n" + "="*80)
             print("❌ CONFIGURATION VALIDATION FAILED")
@@ -973,6 +1145,7 @@ PARAMETER GROUPS:
             print("• pe_gap/ce_gap: Price movement thresholds for your strategy")
             print("• pe_quantity/ce_quantity: Position sizes based on your capital")
             print("• min_price_to_sell: Minimum option premium threshold")
+            print("• max_price_to_sell: Maximum option premium threshold")
             print()
             print("Example command line usage:")
             print("python survivor.py \\")
@@ -982,23 +1155,20 @@ PARAMETER GROUPS:
             print("    --min-price-to-sell 20")
             print("="*80)
             return False
-        
-        # If SOME values are still at defaults, show warning and ask for confirmation
+
+        # Show warning if some values are still defaults
         if len(unchanged_values) > 0:
             print("\n" + "="*80)
             print("⚠️  CONFIGURATION WARNING")
             print("="*80)
             print("Some configuration values are still at their defaults:")
             print()
-            
             for value in unchanged_values:
                 print(f"  ⚠️  {value}: {config.get(value)} (default)")
-            
             if len(changed_values) > 0:
                 print("\nUpdated values:")
                 for value in changed_values:
                     print(f"  ✅ {value}: {config.get(value)} (updated)")
-            
             print("\n" + "="*80)
             print("⚠️  WARNING: Running with default values may result in:")
             print("   • Trading wrong option series")
@@ -1006,8 +1176,8 @@ PARAMETER GROUPS:
             print("   • Poor risk management")
             print("   • Potential losses")
             print("="*80)
-            
-            # Ask for user confirmation
+
+            # Ask for user confirmation (interactive)
             while True:
                 response = input("\nDo you want to proceed with this configuration? (yes/no): ").lower().strip()
                 if response in ['yes', 'y']:
@@ -1019,8 +1189,27 @@ PARAMETER GROUPS:
                     return False
                 else:
                     print("Please enter 'yes' or 'no'.")
-        
-        # If all values have been updated, proceed without confirmation
+                    
+        # If no unchanged defaults (all changed)
+        # If ALWAYS_CONFIRM is set to "1", force a confirmation prompt anyway
+        if os.environ.get("ALWAYS_CONFIRM", "") == "1":
+            print("\n" + "="*80)
+            print("⚠️  CONFIRMATION REQUIRED (ALWAYS_CONFIRM=1)")
+            print("="*80)
+            print("All critical parameters appear updated, but explicit confirmation is required.")
+            while True:
+                response = input("\nDo you want to proceed with this configuration? (yes/no): ").lower().strip()
+                if response in ['yes', 'y']:
+                    print("\n✅ Proceeding with current configuration...")
+                    return True
+                elif response in ['no', 'n']:
+                    print("\n❌ Strategy execution cancelled by user.")
+                    print("Please update your configuration and try again.")
+                    return False
+                else:
+                    print("Please enter 'yes' or 'no'.")
+
+        # Default: pass validation without an extra prompt
         print("\n" + "="*80)
         print("✅ CONFIGURATION VALIDATION PASSED")
         print("="*80)
@@ -1028,6 +1217,7 @@ PARAMETER GROUPS:
         print("Proceeding with strategy execution...")
         print("="*80)
         return True
+
     
     # Run configuration validation
     if not validate_configuration(config):
@@ -1062,6 +1252,7 @@ PARAMETER GROUPS:
     else:
         logger.info("Using normal login flow")
         broker = ZerodhaBroker(without_totp=True)
+
     
     # Create order tracking system for position management
     order_tracker = OrderTracker() 

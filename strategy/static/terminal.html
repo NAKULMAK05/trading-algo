@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Survivor Strategy Terminal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { 
+      background: #0e0e0e; 
+      color: #dcdcdc; 
+      font-family: "Consolas", monospace; 
+      margin: 0; 
+      height: 100vh; 
+      display: flex; 
+      flex-direction: column; 
+    }
+    header { 
+      background: #1a1a1a; 
+      padding: 10px 20px; 
+      display: flex; 
+      justify-content: space-between; 
+      border-bottom: 1px solid #333; 
+    }
+    h2 { 
+      margin: 0; 
+      color: #00e676; 
+      font-size: 1.2em; 
+    }
+    button { 
+      padding: 6px 14px; 
+      background: #222; 
+      border: 1px solid #444; 
+      color: #ccc; 
+      border-radius: 4px; 
+      cursor: pointer; 
+      margin-left: 4px;
+    }
+    button:hover { background: #333; color: #00e676; }
+    #configContainer{
+      padding: 10px; 
+      border-top: 1px solid #333; 
+      background:#111;
+    }
+    #configForm{
+      display: flex; 
+      justify-content: space-between; 
+      flex-wrap: wrap;
+    }
+    .config-col {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 48%;
+    }
+    .config-col div{
+      display: flex;
+      justify-content: space-between;
+    }
+    .config-col label{
+      color: #ccc;
+      margin-right: 5px;
+    }
+    .config-col input{
+      width: 80px; 
+      background:#222; 
+      color:#fff; 
+      border:1px solid #444; 
+      text-align: right;
+    }
+    #terminal { 
+      flex: 1; 
+      padding: 15px; 
+      overflow-y: auto; 
+      white-space: pre-wrap; 
+      background: #000; 
+      font-size: 14px; 
+    }
+    .cmd-line { 
+      display: flex; 
+      background: #111; 
+      border-top: 1px solid #333; 
+      padding: 8px; 
+    }
+    .prompt { 
+      color: #00e676; 
+      margin-right: 5px; 
+    }
+    #commandInput { 
+      flex: 1; 
+      background: transparent; 
+      border: none; 
+      color: #fff; 
+      outline: none; 
+      font-family: inherit; 
+    }
+    .status { 
+      padding: 5px 15px; 
+      font-size: 13px; 
+      background: #1a1a1a; 
+      color: #999; 
+      border-top: 1px solid #222; 
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>🧠 Survivor Strategy Console</h2>
+    <div>
+      <button id="startBtn">Start</button>
+      <button id="stopBtn">Stop</button>
+      <button id="clearBtn">Clear</button>
+      <button id="toggleConfigBtn">Hide Config</button>
+    </div>
+  </header>
+
+  <div id="configContainer">
+    <h3 style="color:#00e676;">Update Survivor Config</h3>
+    <div id="configForm">
+      <div class="config-col" id="peConfigs"></div>
+      <div class="config-col" id="ceConfigs"></div>
+    </div>
+    <button id="saveConfigBtn">Save Config</button>
+  </div>
+
+  <div id="terminal"></div>
+
+  <div class="cmd-line">
+    <span class="prompt">&gt;</span>
+    <input id="commandInput" type="text" placeholder="Type input here..." autocomplete="off" />
+  </div>
+
+  <div class="status" id="statusBar">[disconnected]</div>
+
+  <script>
+    const peConfigsDiv = document.getElementById("peConfigs");
+    const ceConfigsDiv = document.getElementById("ceConfigs");
+    const saveBtn = document.getElementById("saveConfigBtn");
+    const configContainer = document.getElementById("configContainer");
+    const toggleBtn = document.getElementById("toggleConfigBtn");
+
+    const excludedKeys = [
+      "ce_start_point", "exchange", "order_type", "pe_quantity", "ce_quantity",
+      "stoploss_auto_place", "stoploss_enabled", "stoploss_fallback_order_type",
+      "stoploss_limit_buffer", "stoploss_preferred_order_type", "stoploss_price_precision",
+      "stoploss_retry_attempts", "stoploss_retry_delay_secs", "stoploss_tag",
+      "stoploss_use_quote_for_exec_price", "trans_type","pe_start_point","index_symbol","stoploss_multiplier","product_type"
+    ];
+
+    async function loadConfig() {
+      const res = await fetch("/config");
+      const data = await res.json();
+      if (data.status === "success") {
+        peConfigsDiv.innerHTML = "";
+        ceConfigsDiv.innerHTML = "";
+
+        // First display min_price_to_sell in PE column
+        if ("min_price_to_sell" in data.config) {
+          const div = document.createElement("div");
+          div.innerHTML = `<label>min_price_to_sell:</label><input type="text" name="min_price_to_sell" value="${data.config.min_price_to_sell}">`;
+          peConfigsDiv.appendChild(div);
+        }
+
+        // First display max_price_to_sell in CE column
+        if ("max_price_to_sell" in data.config) {
+          const div = document.createElement("div");
+          div.innerHTML = `<label>max_price_to_sell:</label><input type="text" name="max_price_to_sell" value="${data.config.max_price_to_sell}">`;
+          ceConfigsDiv.appendChild(div);
+        }
+
+        // Loop through all keys and append the rest in order
+        for (const [key, value] of Object.entries(data.config)) {
+          if (excludedKeys.includes(key) || key === "min_price_to_sell" || key === "max_price_to_sell") continue;
+          const div = document.createElement("div");
+          div.innerHTML = `<label>${key}:</label><input type="text" name="${key}" value="${value}">`;
+          if (key.startsWith("pe_") || key === "symbol_initials") peConfigsDiv.appendChild(div);
+          else ceConfigsDiv.appendChild(div);
+        }
+      }
+    }
+
+    saveBtn.addEventListener("click", async () => {
+      const updates = {};
+      document.querySelectorAll("#configForm input").forEach(input => {
+        let val = input.value;
+        if (!isNaN(val)) val = Number(val);
+        else if (val.toLowerCase() === "true") val = true;
+        else if (val.toLowerCase() === "false") val = false;
+        updates[input.name] = val;
+      });
+      const res = await fetch("/config", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(updates)
+      });
+      const data = await res.json();
+      appendLog(data.message + "\n");
+    });
+
+    toggleBtn.addEventListener("click", () => {
+      if (configContainer.style.display === "none") {
+        configContainer.style.display = "block";
+        toggleBtn.textContent = "Hide Config";
+      } else {
+        configContainer.style.display = "none";
+        toggleBtn.textContent = "Show Config";
+      }
+    });
+
+    loadConfig();
+
+    // ---------------- Terminal functionality ----------------
+    const terminal = document.getElementById("terminal");
+    const cmdInput = document.getElementById("commandInput");
+    const statusBar = document.getElementById("statusBar");
+
+    function appendLog(text) {
+      terminal.textContent += text;
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    document.getElementById("startBtn").onclick = async () => {
+      appendLog("→ start: python survivor.py\n");
+      const res = await fetch("/start", { method: "POST", headers: {"Content-Type": "application/json"} });
+      const data = await res.json();
+      appendLog(data.message + "\n");
+      if (data.status === "started") startLogStream();
+    };
+
+    document.getElementById("stopBtn").onclick = async () => {
+      appendLog("→ stop\n");
+      const res = await fetch("/stop", { method: "POST" });
+      const data = await res.json();
+      appendLog(data.message + "\n");
+    };
+
+    document.getElementById("clearBtn").onclick = () => terminal.textContent = "";
+
+    let logStream;
+    function startLogStream() {
+      appendLog("[log stream connected]\n");
+      if (logStream) logStream.close();
+
+      logStream = new EventSource("/logs");
+      logStream.onmessage = (event) => {
+        appendLog(event.data + "\n");
+      };
+      logStream.onerror = () => {
+        appendLog("[log stream error]\n");
+        logStream.close();
+      };
+    }
+
+    cmdInput.addEventListener("keydown", async (e) => {
+      if (e.key === "Enter") {
+        const input = cmdInput.value.trim();
+        if (!input) return;
+        appendLog("> " + input + "\n");
+        cmdInput.value = "";
+        await fetch("/input", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ input })
+        });
+      }
+    });
+
+    async function checkStatus() {
+      try {
+        const res = await fetch("/status");
+        const data = await res.json();
+        statusBar.textContent = data.running ? `[running] pid: ${data.pid}` : "[stopped]";
+      } catch { statusBar.textContent = "[connection lost]"; }
+    }
+    setInterval(checkStatus, 3000);
+  </script>
+</body>
+</html>

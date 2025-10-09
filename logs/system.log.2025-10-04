@@ -1,0 +1,154 @@
+2025-10-04 20:32:41 - system - DEBUG - logger.py:42 - setup_logging - PID:22152 - Logging is set up.
+2025-10-04 20:38:17 - system - DEBUG - logger.py:42 - setup_logging - PID:12124 - Logging is set up.
+2025-10-04 20:38:20 - system - ERROR - survivor.py:1028 - <module> - PID:12124 - Configuration validation failed. Please update your configuration.
+2025-10-04 20:40:03 - system - DEBUG - logger.py:42 - setup_logging - PID:13608 - Logging is set up.
+2025-10-04 20:40:05 - system - ERROR - survivor.py:1028 - <module> - PID:13608 - Configuration validation failed. Please update your configuration.
+2025-10-04 20:44:36 - system - DEBUG - logger.py:42 - setup_logging - PID:11676 - Logging is set up.
+2025-10-04 20:44:45 - system - INFO - survivor.py:1033 - <module> - PID:11676 - Configuration loaded from C:\Users\HP\Desktop\trade\trading-algo\strategy\configs/survivor.yml with command line overrides:
+2025-10-04 20:44:45 - system - INFO - survivor.py:1035 - <module> - PID:11676 -   Override: symbol_initials=NIFTY25O06
+2025-10-04 20:44:45 - system - INFO - survivor.py:1035 - <module> - PID:11676 -   Override: pe_gap=25.0
+2025-10-04 20:44:45 - system - INFO - survivor.py:1035 - <module> - PID:11676 -   Override: ce_gap=25.0
+2025-10-04 20:44:45 - system - INFO - survivor.py:1035 - <module> - PID:11676 -   Override: pe_quantity=75
+2025-10-04 20:44:45 - system - INFO - survivor.py:1035 - <module> - PID:11676 -   Override: ce_quantity=75
+2025-10-04 20:44:45 - system - INFO - survivor.py:1035 - <module> - PID:11676 -   Override: min_price_to_sell=20.0
+2025-10-04 20:44:45 - system - INFO - survivor.py:1040 - <module> - PID:11676 - Trading Configuration:
+2025-10-04 20:44:45 - system - INFO - survivor.py:1041 - <module> - PID:11676 -   Symbol: NIFTY25O06, Exchange: NFO
+2025-10-04 20:44:45 - system - INFO - survivor.py:1042 - <module> - PID:11676 -   Gap Triggers - PE: 25.0, CE: 25.0
+2025-10-04 20:44:45 - system - INFO - survivor.py:1043 - <module> - PID:11676 -   Strike Selection - PE: -200, CE: +200
+2025-10-04 20:44:45 - system - INFO - survivor.py:1044 - <module> - PID:11676 -   Base Quantities - PE: 75, CE: 75
+2025-10-04 20:44:45 - system - INFO - survivor.py:1057 - <module> - PID:11676 - Using normal login flow
+2025-10-04 20:50:32 - system - INFO - orders.py:65 - _load_orders - PID:11676 - No existing order file found at 'artifacts/orders_data.json'. Starting fresh.
+2025-10-04 20:50:32 - system - INFO - dispatcher.py:26 - register_main_queue - PID:11676 - Main queue registered for DataDispatcher.
+2025-10-04 20:50:33 - system - INFO - survivor.py:1090 - on_connect - PID:11676 - Websocket connected successfully: {"peer": "tcp4:3.7.102.122:443", "headers": {"date": "Sat, 04 Oct 2025 15:20:35 GMT", "connection": "upgrade", "upgrade": "websocket", "sec-websocket-accept": "lGNRGwDJB1N3LA9mewNW8rBYoac="}, "version": 18, "protocol": null, "extensions": []}
+2025-10-04 20:50:37 - system - ERROR - survivor.py:90 - __init__ - PID:11676 - No instruments found for NIFTY25O06
+2025-10-04 20:50:37 - system - ERROR - survivor.py:91 - __init__ - PID:11676 - Instument NIFTY25O06 not found. Please check the symbol initials
+2025-10-04 20:50:37 - system - ERROR - survivor.py:1154 - <module> - PID:11676 - Error processing tick data: 'SurvivorStrategy' object has no attribute 'nifty_pe_last_value'
+2025-10-04 20:50:37 - system - ERROR - survivor.py:1155 - <module> - PID:11676 - Continuing with next tick...
+2025-10-04 20:54:02 - system - INFO - zerodha.py:219 - on_error - PID:11676 - Connection error: 1006 - connection was closed uncleanly (peer dropped the TCP connection without previous WebSocket closing handshake)
+2025-10-04 20:54:02 - system - INFO - zerodha.py:209 - on_close - PID:11676 - Connection closed: 1006 - connection was closed uncleanly (peer dropped the TCP connection without previous WebSocket closing handshake)
+2025-10-04 20:54:05 - system - INFO - survivor.py:1090 - on_connect - PID:11676 - Websocket connected successfully: {"peer": "tcp4:3.7.102.122:443", "headers": {"date": "Sat, 04 Oct 2025 15:24:07 GMT", "connection": "upgrade", "upgrade": "websocket", "sec-websocket-accept": "1ax9yPZfVl91f8dgLon9CRzshJw="}, "version": 18, "protocol": null, "extensions": []}
+2025-10-04 20:54:05 - system - ERROR - survivor.py:1154 - <module> - PID:11676 - Error processing tick data: 'SurvivorStrategy' object has no attribute 'nifty_pe_last_value'
+2025-10-04 20:54:05 - system - ERROR - survivor.py:1155 - <module> - PID:11676 - Continuing with next tick...
+2025-10-04 21:02:35 - system - DEBUG - logger.py:42 - setup_logging - PID:18044 - Logging is set up.
+2025-10-04 21:02:41 - system - INFO - survivor.py:1037 - <module> - PID:18044 - Configuration loaded from C:\Users\HP\Desktop\trade\trading-algo\strategy\configs/survivor.yml with command line overrides:
+2025-10-04 21:02:41 - system - INFO - survivor.py:1039 - <module> - PID:18044 -   Override: symbol_initials=NIFTY25O06
+2025-10-04 21:02:41 - system - INFO - survivor.py:1039 - <module> - PID:18044 -   Override: pe_gap=25.0
+2025-10-04 21:02:41 - system - INFO - survivor.py:1039 - <module> - PID:18044 -   Override: ce_gap=25.0
+2025-10-04 21:02:41 - system - INFO - survivor.py:1039 - <module> - PID:18044 -   Override: pe_quantity=75
+2025-10-04 21:02:41 - system - INFO - survivor.py:1039 - <module> - PID:18044 -   Override: ce_quantity=75
+2025-10-04 21:02:41 - system - INFO - survivor.py:1039 - <module> - PID:18044 -   Override: min_price_to_sell=20.0
+2025-10-04 21:02:41 - system - INFO - survivor.py:1044 - <module> - PID:18044 - Trading Configuration:
+2025-10-04 21:02:41 - system - INFO - survivor.py:1045 - <module> - PID:18044 -   Symbol: NIFTY25O06, Exchange: NFO
+2025-10-04 21:02:41 - system - INFO - survivor.py:1046 - <module> - PID:18044 -   Gap Triggers - PE: 25.0, CE: 25.0
+2025-10-04 21:02:41 - system - INFO - survivor.py:1047 - <module> - PID:18044 -   Strike Selection - PE: -200, CE: +200
+2025-10-04 21:02:41 - system - INFO - survivor.py:1048 - <module> - PID:18044 -   Base Quantities - PE: 75, CE: 75
+2025-10-04 21:02:41 - system - INFO - survivor.py:1061 - <module> - PID:18044 - Using normal login flow
+2025-10-04 21:03:03 - system - DEBUG - logger.py:42 - setup_logging - PID:22860 - Logging is set up.
+2025-10-04 21:03:06 - system - INFO - survivor.py:1037 - <module> - PID:22860 - Configuration loaded from C:\Users\HP\Desktop\trade\trading-algo\strategy\configs/survivor.yml with command line overrides:
+2025-10-04 21:03:06 - system - INFO - survivor.py:1039 - <module> - PID:22860 -   Override: symbol_initials=NIFTY25O06
+2025-10-04 21:03:06 - system - INFO - survivor.py:1039 - <module> - PID:22860 -   Override: pe_gap=25.0
+2025-10-04 21:03:06 - system - INFO - survivor.py:1039 - <module> - PID:22860 -   Override: ce_gap=25.0
+2025-10-04 21:03:06 - system - INFO - survivor.py:1039 - <module> - PID:22860 -   Override: pe_quantity=75
+2025-10-04 21:03:06 - system - INFO - survivor.py:1039 - <module> - PID:22860 -   Override: ce_quantity=75
+2025-10-04 21:03:06 - system - INFO - survivor.py:1039 - <module> - PID:22860 -   Override: min_price_to_sell=20.0
+2025-10-04 21:03:06 - system - INFO - survivor.py:1044 - <module> - PID:22860 - Trading Configuration:
+2025-10-04 21:03:06 - system - INFO - survivor.py:1045 - <module> - PID:22860 -   Symbol: NIFTY25O06, Exchange: NFO
+2025-10-04 21:03:06 - system - INFO - survivor.py:1046 - <module> - PID:22860 -   Gap Triggers - PE: 25.0, CE: 25.0
+2025-10-04 21:03:06 - system - INFO - survivor.py:1047 - <module> - PID:22860 -   Strike Selection - PE: -200, CE: +200
+2025-10-04 21:03:06 - system - INFO - survivor.py:1048 - <module> - PID:22860 -   Base Quantities - PE: 75, CE: 75
+2025-10-04 21:03:06 - system - INFO - survivor.py:1061 - <module> - PID:22860 - Using normal login flow
+2025-10-04 21:03:50 - system - INFO - orders.py:65 - _load_orders - PID:22860 - No existing order file found at 'artifacts/orders_data.json'. Starting fresh.
+2025-10-04 21:03:50 - system - INFO - dispatcher.py:26 - register_main_queue - PID:22860 - Main queue registered for DataDispatcher.
+2025-10-04 21:03:51 - system - INFO - survivor.py:1094 - on_connect - PID:22860 - Websocket connected successfully: {"peer": "tcp4:13.126.61.61:443", "headers": {"date": "Sat, 04 Oct 2025 15:33:53 GMT", "connection": "upgrade", "upgrade": "websocket", "sec-websocket-accept": "JfaxR1L1CodnGtJvKQ1LHa38kZk="}, "version": 18, "protocol": null, "extensions": []}
+2025-10-04 21:03:56 - system - ERROR - survivor.py:94 - __init__ - PID:22860 - No instruments found for NIFTY25O06
+2025-10-04 21:03:56 - system - ERROR - survivor.py:95 - __init__ - PID:22860 - Instument NIFTY25O06 not found. Please check the symbol initials
+2025-10-04 21:03:56 - system - WARNING - survivor.py:200 - _check_sell_multiplier_breach - PID:22860 - Sell multiplier 115 breached the threshold 5
+2025-10-04 21:03:56 - system - WARNING - survivor.py:241 - _handle_pe_trade - PID:22860 - Sell multiplier 115 breached the threshold 5
+2025-10-04 21:03:56 - system - INFO - survivor.py:558 - _log_stable_market - PID:22860 - NIFTY25O06 Nifty under control. PE = 22000, CE = 22000, Current = 24894.25, CE Gap = 25.0, PE Gap = 25.0
+2025-10-04 21:03:56 - system - ERROR - survivor.py:1158 - <module> - PID:22860 - Error processing tick data: 'SurvivorStrategy' object has no attribute 'ce_reset_gap_flag'
+2025-10-04 21:03:56 - system - ERROR - survivor.py:1159 - <module> - PID:22860 - Continuing with next tick...
+2025-10-04 21:06:28 - system - DEBUG - logger.py:42 - setup_logging - PID:20672 - Logging is set up.
+2025-10-04 21:06:32 - system - INFO - survivor.py:1039 - <module> - PID:20672 - Configuration loaded from C:\Users\HP\Desktop\trade\trading-algo\strategy\configs/survivor.yml with command line overrides:
+2025-10-04 21:06:32 - system - INFO - survivor.py:1041 - <module> - PID:20672 -   Override: symbol_initials=NIFTY25O06
+2025-10-04 21:06:32 - system - INFO - survivor.py:1041 - <module> - PID:20672 -   Override: pe_gap=25.0
+2025-10-04 21:06:32 - system - INFO - survivor.py:1041 - <module> - PID:20672 -   Override: ce_gap=25.0
+2025-10-04 21:06:32 - system - INFO - survivor.py:1041 - <module> - PID:20672 -   Override: pe_quantity=75
+2025-10-04 21:06:32 - system - INFO - survivor.py:1041 - <module> - PID:20672 -   Override: ce_quantity=75
+2025-10-04 21:06:32 - system - INFO - survivor.py:1041 - <module> - PID:20672 -   Override: min_price_to_sell=20.0
+2025-10-04 21:06:32 - system - INFO - survivor.py:1046 - <module> - PID:20672 - Trading Configuration:
+2025-10-04 21:06:32 - system - INFO - survivor.py:1047 - <module> - PID:20672 -   Symbol: NIFTY25O06, Exchange: NFO
+2025-10-04 21:06:32 - system - INFO - survivor.py:1048 - <module> - PID:20672 -   Gap Triggers - PE: 25.0, CE: 25.0
+2025-10-04 21:06:32 - system - INFO - survivor.py:1049 - <module> - PID:20672 -   Strike Selection - PE: -200, CE: +200
+2025-10-04 21:06:32 - system - INFO - survivor.py:1050 - <module> - PID:20672 -   Base Quantities - PE: 75, CE: 75
+2025-10-04 21:06:32 - system - INFO - survivor.py:1063 - <module> - PID:20672 - Using normal login flow
+2025-10-04 21:07:30 - system - INFO - orders.py:65 - _load_orders - PID:20672 - No existing order file found at 'artifacts/orders_data.json'. Starting fresh.
+2025-10-04 21:07:31 - system - INFO - dispatcher.py:26 - register_main_queue - PID:20672 - Main queue registered for DataDispatcher.
+2025-10-04 21:07:51 - system - ERROR - survivor.py:96 - __init__ - PID:20672 - No instruments found for NIFTY25O06
+2025-10-04 21:07:51 - system - ERROR - survivor.py:97 - __init__ - PID:20672 - Instument NIFTY25O06 not found. Please check the symbol initials
+2025-10-04 21:07:57 - system - INFO - zerodha.py:229 - on_reconnect - PID:20672 - Reconnecting: 1
+2025-10-04 21:08:08 - system - INFO - survivor.py:1096 - on_connect - PID:20672 - Websocket connected successfully: {"peer": "tcp4:13.126.61.61:443", "headers": {"date": "Sat, 04 Oct 2025 15:38:10 GMT", "connection": "upgrade", "upgrade": "websocket", "sec-websocket-accept": "ZMiFYzQoww39Tgd9DPMVM8V9aUU="}, "version": 18, "protocol": null, "extensions": []}
+2025-10-04 21:08:09 - system - WARNING - survivor.py:202 - _check_sell_multiplier_breach - PID:20672 - Sell multiplier 115 breached the threshold 5
+2025-10-04 21:08:09 - system - WARNING - survivor.py:243 - _handle_pe_trade - PID:20672 - Sell multiplier 115 breached the threshold 5
+2025-10-04 21:08:09 - system - INFO - survivor.py:560 - _log_stable_market - PID:20672 - NIFTY25O06 Nifty under control. PE = 22000, CE = 22000, Current = 24894.25, CE Gap = 25.0, PE Gap = 25.0
+2025-10-04 21:13:15 - system - DEBUG - logger.py:42 - setup_logging - PID:7628 - Logging is set up.
+2025-10-04 21:13:17 - system - ERROR - survivor.py:1034 - <module> - PID:7628 - Configuration validation failed. Please update your configuration.
+2025-10-04 21:15:50 - system - DEBUG - logger.py:42 - setup_logging - PID:8072 - Logging is set up.
+2025-10-04 21:15:56 - system - INFO - survivor.py:1043 - <module> - PID:8072 - Using default configuration from C:\Users\HP\Desktop\trade\trading-algo\strategy\configs/survivor.yml
+2025-10-04 21:15:56 - system - INFO - survivor.py:1046 - <module> - PID:8072 - Trading Configuration:
+2025-10-04 21:15:56 - system - INFO - survivor.py:1047 - <module> - PID:8072 -   Symbol: NIFTY25O06, Exchange: NFO
+2025-10-04 21:15:56 - system - INFO - survivor.py:1048 - <module> - PID:8072 -   Gap Triggers - PE: 25, CE: 25
+2025-10-04 21:15:56 - system - INFO - survivor.py:1049 - <module> - PID:8072 -   Strike Selection - PE: -200, CE: +200
+2025-10-04 21:15:56 - system - INFO - survivor.py:1050 - <module> - PID:8072 -   Base Quantities - PE: 75, CE: 75
+2025-10-04 21:15:56 - system - INFO - survivor.py:1063 - <module> - PID:8072 - Using normal login flow
+2025-10-04 21:16:34 - system - INFO - orders.py:65 - _load_orders - PID:8072 - No existing order file found at 'artifacts/orders_data.json'. Starting fresh.
+2025-10-04 21:16:34 - system - INFO - dispatcher.py:26 - register_main_queue - PID:8072 - Main queue registered for DataDispatcher.
+2025-10-04 21:16:35 - system - INFO - survivor.py:1096 - on_connect - PID:8072 - Websocket connected successfully: {"peer": "tcp4:13.126.61.61:443", "headers": {"date": "Sat, 04 Oct 2025 15:46:37 GMT", "connection": "upgrade", "upgrade": "websocket", "sec-websocket-accept": "Ppo+QJME8qJc0kwlxuEX2MqF/fw="}, "version": 18, "protocol": null, "extensions": []}
+2025-10-04 21:16:38 - system - ERROR - survivor.py:96 - __init__ - PID:8072 - No instruments found for NIFTY25O06
+2025-10-04 21:16:38 - system - ERROR - survivor.py:97 - __init__ - PID:8072 - Instument NIFTY25O06 not found. Please check the symbol initials
+2025-10-04 21:16:38 - system - WARNING - survivor.py:202 - _check_sell_multiplier_breach - PID:8072 - Sell multiplier 115 breached the threshold 5
+2025-10-04 21:16:38 - system - WARNING - survivor.py:243 - _handle_pe_trade - PID:8072 - Sell multiplier 115 breached the threshold 5
+2025-10-04 21:16:38 - system - INFO - survivor.py:560 - _log_stable_market - PID:8072 - NIFTY25O06 Nifty under control. PE = 22000, CE = 22000, Current = 24894.25, CE Gap = 25, PE Gap = 25
+2025-10-04 21:26:31 - system - DEBUG - logger.py:42 - setup_logging - PID:10224 - Logging is set up.
+2025-10-04 21:26:34 - system - INFO - survivor.py:1043 - <module> - PID:10224 - Using default configuration from C:\Users\HP\Desktop\trade\trading-algo\strategy\configs/survivor.yml
+2025-10-04 21:26:34 - system - INFO - survivor.py:1046 - <module> - PID:10224 - Trading Configuration:
+2025-10-04 21:26:34 - system - INFO - survivor.py:1047 - <module> - PID:10224 -   Symbol: NIFTY25O06, Exchange: NFO
+2025-10-04 21:26:34 - system - INFO - survivor.py:1048 - <module> - PID:10224 -   Gap Triggers - PE: 25, CE: 25
+2025-10-04 21:26:34 - system - INFO - survivor.py:1049 - <module> - PID:10224 -   Strike Selection - PE: -200, CE: +200
+2025-10-04 21:26:34 - system - INFO - survivor.py:1050 - <module> - PID:10224 -   Base Quantities - PE: 75, CE: 75
+2025-10-04 21:26:34 - system - INFO - survivor.py:1063 - <module> - PID:10224 - Using normal login flow
+2025-10-04 21:27:27 - system - INFO - orders.py:65 - _load_orders - PID:10224 - No existing order file found at 'artifacts/orders_data.json'. Starting fresh.
+2025-10-04 21:27:27 - system - INFO - dispatcher.py:26 - register_main_queue - PID:10224 - Main queue registered for DataDispatcher.
+2025-10-04 21:27:28 - system - INFO - survivor.py:1096 - on_connect - PID:10224 - Websocket connected successfully: {"peer": "tcp4:13.126.61.61:443", "headers": {"date": "Sat, 04 Oct 2025 15:57:30 GMT", "connection": "upgrade", "upgrade": "websocket", "sec-websocket-accept": "sPyT1jhMpSiyEHYMpJ/Osg4B034="}, "version": 18, "protocol": null, "extensions": []}
+2025-10-04 21:27:31 - system - ERROR - survivor.py:96 - __init__ - PID:10224 - No instruments found for NIFTY25O06
+2025-10-04 21:27:31 - system - ERROR - survivor.py:97 - __init__ - PID:10224 - Instument NIFTY25O06 not found. Please check the symbol initials
+2025-10-04 21:27:31 - system - INFO - survivor.py:560 - _log_stable_market - PID:10224 - NIFTY25O06 Nifty under control. PE = 24900, CE = 24900, Current = 24894.25, CE Gap = 25, PE Gap = 25
+2025-10-04 21:30:53 - system - DEBUG - logger.py:42 - setup_logging - PID:23284 - Logging is set up.
+2025-10-04 21:30:57 - system - INFO - survivor.py:1043 - <module> - PID:23284 - Using default configuration from C:\Users\HP\Desktop\trade\trading-algo\strategy\configs/survivor.yml
+2025-10-04 21:30:57 - system - INFO - survivor.py:1046 - <module> - PID:23284 - Trading Configuration:
+2025-10-04 21:30:57 - system - INFO - survivor.py:1047 - <module> - PID:23284 -   Symbol: NIFTY25O07, Exchange: NFO
+2025-10-04 21:30:57 - system - INFO - survivor.py:1048 - <module> - PID:23284 -   Gap Triggers - PE: 25, CE: 25
+2025-10-04 21:30:57 - system - INFO - survivor.py:1049 - <module> - PID:23284 -   Strike Selection - PE: -200, CE: +200
+2025-10-04 21:30:57 - system - INFO - survivor.py:1050 - <module> - PID:23284 -   Base Quantities - PE: 75, CE: 75
+2025-10-04 21:30:57 - system - INFO - survivor.py:1063 - <module> - PID:23284 - Using normal login flow
+2025-10-04 21:31:35 - system - INFO - orders.py:65 - _load_orders - PID:23284 - No existing order file found at 'artifacts/orders_data.json'. Starting fresh.
+2025-10-04 21:31:35 - system - INFO - dispatcher.py:26 - register_main_queue - PID:23284 - Main queue registered for DataDispatcher.
+2025-10-04 21:31:37 - system - INFO - survivor.py:1096 - on_connect - PID:23284 - Websocket connected successfully: {"peer": "tcp4:13.126.61.61:443", "headers": {"date": "Sat, 04 Oct 2025 16:01:39 GMT", "connection": "upgrade", "upgrade": "websocket", "sec-websocket-accept": "Ai6BRV7ZZPeZWTw1Tsn0iIkUb20="}, "version": 18, "protocol": null, "extensions": []}
+2025-10-04 21:31:40 - system - INFO - survivor.py:139 - _initialize_state - PID:23284 - Nifty PE Start Value during initialization: 24894.25, Nifty CE Start Value during initialization: 24894.25
+2025-10-04 21:31:40 - system - INFO - survivor.py:105 - __init__ - PID:23284 - Strike difference for NIFTY25O07 is 50.0
+2025-10-04 21:31:40 - system - INFO - survivor.py:560 - _log_stable_market - PID:23284 - NIFTY25O07 Nifty under control. PE = 24894.25, CE = 24894.25, Current = 24894.25, CE Gap = 25, PE Gap = 25
+2025-10-04 21:31:40 - system - INFO - survivor.py:560 - _log_stable_market - PID:23284 - NIFTY25O07 Nifty under control. PE = 24894.25, CE = 24894.25, Current = 24894.25, CE Gap = 25, PE Gap = 25
+2025-10-04 21:55:37 - system - DEBUG - logger.py:42 - setup_logging - PID:14308 - Logging is set up.
+2025-10-04 21:56:53 - system - DEBUG - logger.py:42 - setup_logging - PID:19640 - Logging is set up.
+2025-10-04 21:57:08 - system - DEBUG - logger.py:42 - setup_logging - PID:8764 - Logging is set up.
+2025-10-04 21:58:41 - system - DEBUG - logger.py:42 - setup_logging - PID:1856 - Logging is set up.
+2025-10-04 21:59:48 - system - DEBUG - logger.py:42 - setup_logging - PID:21468 - Logging is set up.
+2025-10-04 22:01:03 - system - DEBUG - logger.py:42 - setup_logging - PID:12884 - Logging is set up.
+2025-10-04 22:01:57 - system - DEBUG - logger.py:42 - setup_logging - PID:3080 - Logging is set up.
+2025-10-04 22:02:02 - system - DEBUG - logger.py:42 - setup_logging - PID:24476 - Logging is set up.
+2025-10-04 22:06:28 - system - DEBUG - logger.py:42 - setup_logging - PID:8480 - Logging is set up.
+2025-10-04 22:07:53 - system - DEBUG - logger.py:42 - setup_logging - PID:11316 - Logging is set up.
+2025-10-04 22:08:34 - system - DEBUG - logger.py:42 - setup_logging - PID:19684 - Logging is set up.
+2025-10-04 22:10:17 - system - DEBUG - logger.py:42 - setup_logging - PID:14864 - Logging is set up.
+2025-10-04 22:12:57 - system - DEBUG - logger.py:42 - setup_logging - PID:3732 - Logging is set up.
+2025-10-04 22:14:10 - system - DEBUG - logger.py:42 - setup_logging - PID:19064 - Logging is set up.
+2025-10-04 22:15:27 - system - DEBUG - logger.py:42 - setup_logging - PID:10636 - Logging is set up.
