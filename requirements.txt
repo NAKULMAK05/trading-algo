@@ -6,3 +6,5 @@ python-dotenv>=1.1.1
 pyyaml>=6.0.2
 ratelimit>=2.2.1
 requests>=2.31.0
+flask==3.1.2
+flask_cors==6.0.0
