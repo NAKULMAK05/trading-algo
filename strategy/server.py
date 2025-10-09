@@ -19,7 +19,9 @@ app = Flask(__name__, static_folder='static')
 CORS(app)
 
 
-CONFIG_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "configs\survivor.yml"))
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), "configs", "survivor.yml")
+CONFIG_PATH = os.path.abspath(CONFIG_PATH)
+
 
 # Read config
 def read_config():
